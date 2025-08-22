@@ -1,26 +1,33 @@
-FROM debian:10.6-slim
+FROM alpine:3
 
-LABEL maintainer "ugeek. ugeekpodcast@gmail.com" 
+LABEL maintainer="ugeek. ugeekpodcast@gmail.com"
+LABEL org.opencontainers.image.source="https://github.com/ugeek/docker-webdav"
+LABEL org.opencontainers.image.description="WebDAV server based on Nginx"
 
 ARG UID=${UID:-1000}
 ARG GID=${GID:-1000}
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-                    nginx \
-                    nginx-extras \
-                    apache2-utils && \
-                    rm -rf /var/lib/apt/lists
+RUN apk add --no-cache \
+    nginx \
+    nginx-mod-http-dav-ext \
+    apache2-utils \
+    shadow && \
+    mkdir -p /run/nginx && \
+    rm -rf /var/cache/apk/*
 
-RUN usermod -u $UID www-data && groupmod -g $GID www-data
+RUN usermod -u $UID nginx && \
+    groupmod -g $GID nginx && \
+    chown -R nginx:nginx /var/lib/nginx /var/log/nginx /run/nginx
 
 VOLUME /media
 EXPOSE 80
 
-COPY webdav.conf /etc/nginx/conf.d/default.conf
-RUN rm /etc/nginx/sites-enabled/*
+COPY webdav.conf /etc/nginx/http.d/default.conf
+RUN rm -f /etc/nginx/http.d/default.conf.example 2>/dev/null || true
 
 COPY entrypoint.sh /
-RUN chmod +x entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
-CMD /entrypoint.sh && nginx -g "daemon off;"
+USER nginx
+
+CMD ["/bin/sh", "-c", "/entrypoint.sh && nginx -g 'daemon off;'"]
