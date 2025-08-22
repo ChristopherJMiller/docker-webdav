@@ -10,6 +10,7 @@ ARG GID=${GID:-1000}
 RUN apk add --no-cache \
     nginx \
     nginx-mod-http-dav-ext \
+    nginx-mod-http-headers-more \
     apache2-utils \
     shadow && \
     mkdir -p /run/nginx && \
@@ -22,6 +23,7 @@ RUN usermod -u $UID nginx && \
 VOLUME /media
 EXPOSE 80
 
+COPY nginx.conf /etc/nginx/nginx.conf
 COPY webdav.conf /etc/nginx/http.d/default.conf
 RUN rm -f /etc/nginx/http.d/default.conf.example 2>/dev/null || true
 
