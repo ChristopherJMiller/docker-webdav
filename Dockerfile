@@ -21,7 +21,7 @@ RUN usermod -u $UID nginx && \
     chown -R nginx:nginx /var/lib/nginx /var/log/nginx /run/nginx
 
 VOLUME /media
-EXPOSE 80
+EXPOSE 8080
 
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY webdav.conf /etc/nginx/http.d/default.conf
