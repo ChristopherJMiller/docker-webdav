@@ -25,9 +25,7 @@ EXPOSE 80
 COPY webdav.conf /etc/nginx/http.d/default.conf
 RUN rm -f /etc/nginx/http.d/default.conf.example 2>/dev/null || true
 
-COPY entrypoint.sh /
+COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-USER nginx
-
-CMD ["/bin/sh", "-c", "/entrypoint.sh && nginx -g 'daemon off;'"]
+CMD ["/bin/sh", "-c", "/entrypoint.sh && exec nginx -g 'daemon off;'"]
